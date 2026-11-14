@@ -43,14 +43,14 @@ TARGETS = {
         "label": "Mars - Jezero Crater",
         "weights": {"dryness": 0.25, "low_humidity": 0.15, "temp_swing": 0.10,
                     "cold": 0.20, "altitude": 0.10, "terrain": 0.20},
-        "terrain": {"desert": 1.0, "acidic": 1.0, "polar": 1.0, "crater": 0.9,
+        "terrain": {"cave": 0.9, "desert": 1.0, "acidic": 1.0, "polar": 1.0, "crater": 0.9,
                     "volcanic": 0.8, "dunes": 0.8},
     },
     "moon": {
         "label": "Moon - South Pole",
         "weights": {"dryness": 0.15, "low_humidity": 0.10, "temp_swing": 0.15,
                     "cold": 0.20, "altitude": 0.10, "terrain": 0.30},
-        "terrain": {"volcanic": 1.0, "crater": 1.0, "polar": 0.9, "desert": 0.5,
+        "terrain": {"cave": 1.0, "volcanic": 1.0, "crater": 1.0, "polar": 0.9, "desert": 0.5,
                     "dunes": 0.4, "acidic": 0.4},
     },
 }
@@ -177,7 +177,7 @@ def main():
         }
         for t in TARGETS:
             fs = feature_scores(climate, row["terrain"], t)
-            row[f"{t}_features"] = {k: round(v, 2) for k, v in fs.items()}
+            row[f"{t}_features"] = {k: round(v, 4) for k, v in fs.items()}
             row[f"{t}_score"] = total_score(fs, t)
         results.append(row)
         print(f"  [{i}/{len(sites)}] {s['name']:<24} Mars {row['mars_score']:>5}   "
@@ -228,6 +228,7 @@ def build_map(results):
         "targets": {t: TARGETS[t]["label"] for t in TARGETS},
         "featureNames": FEATURE_NAMES,
         "facts": TARGET_FACTS,
+        "weights": {t: TARGETS[t]["weights"] for t in TARGETS},
     })
     html = MAP_TEMPLATE.replace("__DATA__", payload)
     with open(MAP_FILE, "w", encoding="utf-8") as f:
@@ -271,6 +272,12 @@ MAP_TEMPLATE = r"""<!DOCTYPE html>
   .fb { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
   .fb div { height: 100%; background: #c1440e; }
   .leaflet-popup-content { min-width: 230px; }
+  #weights { background: #141a2a; border: 1px solid #2c3550; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
+  #weights .wt { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  #weights .wr { display: grid; grid-template-columns: 1fr 90px 34px; gap: 8px; align-items: center; font-size: 12px; color: #c4cbe0; margin: 4px 0; }
+  #weights input { width: 100%; accent-color: #c1440e; }
+  #weights button { margin-top: 8px; width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #2c3550;
+         background: #0b0f1a; color: #e8eaf0; cursor: pointer; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -288,6 +295,7 @@ MAP_TEMPLATE = r"""<!DOCTYPE html>
     <div style="display:flex;justify-content:space-between"><span>0 low</span><span>100 high</span></div>
     Ring = known analog &nbsp; | &nbsp; <span class="tag new">NEW</span> = our candidate
   </div>
+  <div id="weights"></div>
   <div id="facts" style="font-size:12px;line-height:1.6;background:#141a2a;border:1px solid #2c3550;border-radius:8px;padding:10px 12px;margin-bottom:14px"></div>
   <div id="list"></div>
 </div>
@@ -295,6 +303,36 @@ MAP_TEMPLATE = r"""<!DOCTYPE html>
 <script>
 const DATA = __DATA__;
 let target = "mars";
+let W = { ...DATA.weights[target] };
+
+function score(s) {
+  const fs = s[target + "_features"];
+  let sum = 0, tot = 0;
+  for (const k in W) { sum += fs[k] * W[k]; tot += W[k]; }
+  return tot > 0 ? Math.round(1000 * sum / tot) / 10 : 0;
+}
+
+function buildSliders() {
+  let h = `<div class="wt">What matters for your mission?</div>`;
+  for (const k in W) {
+    h += `<div class="wr"><span>${DATA.featureNames[k]}</span>
+      <input type="range" min="0" max="50" step="1" value="${Math.round(W[k] * 100)}" oninput="setWeight('${k}', this.value)">
+      <span id="w_${k}">${Math.round(W[k] * 100)}</span></div>`;
+  }
+  h += `<button onclick="resetWeights()">Reset to our default weights</button>`;
+  document.getElementById("weights").innerHTML = h;
+}
+
+function setWeight(k, v) {
+  W[k] = v / 100;
+  document.getElementById("w_" + k).textContent = v;
+  render();
+}
+
+function resetWeights() {
+  W = { ...DATA.weights[target] };
+  buildSliders(); render();
+}
 const map = L.map("map", { worldCopyJump: true }).setView([20, 20], 2);
 L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   { attribution: "Imagery: Esri", maxZoom: 18 }).addTo(map);
@@ -315,7 +353,7 @@ function card(s) {
   let h = `<div class="card"><h3>${s.name}</h3>
     <span class="tag ${s.known_analog ? "" : "new"}">${s.known_analog ? "Known analog" : "NEW candidate"}</span>
     <span class="tag">${s.terrain}</span>
-    <div class="big" style="color:${color(s[target + "_score"])}">${s[target + "_score"]} / 100</div>
+    <div class="big" style="color:${color(score(s))}">${score(s)} / 100</div>
     <div class="f">${DATA.targets[target]}</div>`;
   for (const k in fs) {
     h += `<div class="f">${DATA.featureNames[k]} - ${Math.round(fs[k] * 100)}%
@@ -347,9 +385,9 @@ function showFacts() {
 function render() {
   showFacts();
   layer.clearLayers();
-  const sorted = [...DATA.sites].sort((a, b) => b[target + "_score"] - a[target + "_score"]);
+  const sorted = [...DATA.sites].sort((a, b) => score(b) - score(a));
   sorted.forEach(s => {
-    const sc = s[target + "_score"];
+    const sc = score(s);
     const m = L.circleMarker([s.lat, s.lon], {
       radius: 7 + sc / 10, fillColor: color(sc), fillOpacity: 0.9,
       color: s.known_analog ? "#ffffff" : "#000000", weight: s.known_analog ? 3 : 1
@@ -360,7 +398,7 @@ function render() {
     <div class="row" onclick="focusSite('${s.name.replace(/'/g, "\\'")}')">
       <span class="rank">${i + 1}</span><span class="nm">${s.name}</span>
       ${s.known_analog ? "" : '<span class="tag new">NEW</span>'}
-      <span class="sc" style="color:${color(s[target + "_score"])}">${s[target + "_score"]}</span>
+      <span class="sc" style="color:${color(score(s))}">${score(s)}</span>
     </div>`).join("");
 }
 
@@ -373,8 +411,11 @@ function setTarget(t) {
   target = t;
   document.getElementById("bMars").classList.toggle("on", t === "mars");
   document.getElementById("bMoon").classList.toggle("on", t === "moon");
+  W = { ...DATA.weights[target] };
+  buildSliders();
   render();
 }
+buildSliders();
 render();
 </script>
 </body>
