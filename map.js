@@ -1,4 +1,18 @@
 // DATA comes from map_data.js, which analog_finder.py creates
+
+// ---------- Night mode / morning mode (remembered in the browser) ----------
+function applyTheme(t) {
+  document.body.classList.toggle("light", t === "light");
+  document.getElementById("themeBtn").textContent = t === "light" ? "🌙 Night mode" : "☀️ Morning mode";
+  try { localStorage.setItem("analogTheme", t); } catch (e) {}
+}
+function toggleTheme() {
+  applyTheme(document.body.classList.contains("light") ? "dark" : "light");
+}
+let savedTheme = "dark";
+try { savedTheme = localStorage.getItem("analogTheme") || "dark"; } catch (e) {}
+applyTheme(savedTheme);
+
 let target = "mars";
 let W = { ...DATA.weights[target] };
 
@@ -77,7 +91,7 @@ function showFacts() {
   document.getElementById("facts").innerHTML = `<b>Target: ${DATA.targets[target]}</b><br>
     ${tf.where}<br>Mean temp: ${tf.mean_temp_C} C<br>Day-night swing: ${tf.temp_swing_C} C<br>
     Air pressure: ${tf.pressure_kPa} kPa (Earth: 101.3)<br>${tf.notes}<br>
-    <span style="color:#9aa3b8">Source: ${tf.source}</span>`;
+    <span class="muted">Source: ${tf.source}</span>`;
 }
 
 function render() {
@@ -97,6 +111,7 @@ function render() {
     <div class="row" onclick="focusSite('${s.name.replace(/'/g, "\\'")}')">
       <span class="rank">${i + 1}</span><span class="nm">${s.name}</span>
       ${s.known_analog ? "" : '<span class="tag new">NEW</span>'}
+      <span class="dot" style="background:${color(score(s))}"></span>
       <span class="sc" style="color:${color(score(s))}">${score(s)}</span>
     </div>`).join("");
 }

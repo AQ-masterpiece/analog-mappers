@@ -10,7 +10,10 @@
 </head>
 <body>
 <div id="side">
-  <h1>Analog Finder</h1>
+  <div class="top">
+    <h1>Analog Finder</h1>
+    <button id="themeBtn" onclick="toggleTheme()">☀️ Morning mode</button>
+  </div>
   <div class="sub">The Analog Mappers - NASA Space Apps 2026.<br>
     Which places on Earth are most like the Moon or Mars? Scores use NASA POWER climate data
     + terrain type. Click a site to see why it matches.</div>
@@ -20,12 +23,12 @@
   </div>
   <div class="legend">Similarity score
     <div class="bar"></div>
-    <div style="display:flex;justify-content:space-between"><span>0 low</span><span>100 high</span></div>
+    <div class="legend-ends"><span>0 low</span><span>100 high</span></div>
     Ring = known analog &nbsp; | &nbsp; <span class="tag new">NEW</span> = our candidate
   </div>
   <div class="scanhint"><b>New: scan any place on Earth.</b> Click anywhere on the map to score it live with NASA POWER data.</div>
   <div id="weights"></div>
-  <div id="facts" style="font-size:12px;line-height:1.6;background:#141a2a;border:1px solid #2c3550;border-radius:8px;padding:10px 12px;margin-bottom:14px"></div>
+  <div id="facts" class="panel"></div>
   <div id="list"></div>
 </div>
 <div id="map"></div>

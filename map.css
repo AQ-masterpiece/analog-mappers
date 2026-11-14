@@ -1,40 +1,72 @@
+/* ---------- Colors: night mode (default) ---------- */
+:root {
+  --bg: #0b0f1a; --panel: #141a2a; --border: #2c3550; --line: #222a3d;
+  --text: #e8eaf0; --muted: #9aa3b8; --faint: #6b7590; --label: #c4cbe0; --hover: #161d30;
+  --tag-bg: #23304d; --tag-text: #a9b8db; --new-bg: #3d2a12; --new-text: #ffb066;
+  --hint-bg: #2a1d10; --hint-border: #5a3a1a; --hint-text: #ffb066; --accent: #c1440e;
+}
+/* ---------- Colors: morning mode ---------- */
+body.light {
+  --bg: #f6f2ea; --panel: #ffffff; --border: #ded6c6; --line: #e4dccd;
+  --text: #1b2333; --muted: #5b6577; --faint: #7c8598; --label: #3e4a5e; --hover: #ede6d9;
+  --tag-bg: #e3e8f2; --tag-text: #2c3a5a; --new-bg: #fbe3d2; --new-text: #8a3510;
+  --hint-bg: #fff1e6; --hint-border: #f1c9a8; --hint-text: #8a3510; --accent: #c1440e;
+}
+
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
-         background: #0b0f1a; color: #e8eaf0; display: flex; height: 100vh; }
-  #side { width: 360px; padding: 20px; overflow-y: auto; border-right: 1px solid #222a3d; }
+         background: var(--bg); color: var(--text); display: flex; height: 100vh;
+         transition: background .3s, color .3s; }
+  #side { width: 360px; padding: 20px; overflow-y: auto; border-right: 1px solid var(--line); }
   #map { flex: 1; }
-  h1 { font-size: 20px; margin: 0 0 4px; }
-  .sub { color: #9aa3b8; font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  h1 { font-size: 20px; margin: 0; }
+  #themeBtn { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border);
+         background: var(--panel); color: var(--text); cursor: pointer; font-size: 12px; white-space: nowrap; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
   .switch { display: flex; gap: 6px; margin-bottom: 16px; }
-  .switch button { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2c3550;
-         background: #141a2a; color: #e8eaf0; cursor: pointer; font-size: 14px; }
-  .switch button.on { background: #c1440e; border-color: #c1440e; }
-  .switch button.on.moon { background: #5b6a8f; border-color: #5b6a8f; }
+  .switch button { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+         background: var(--panel); color: var(--text); cursor: pointer; font-size: 14px; }
+  .switch button.on { background: #c1440e; border-color: #c1440e; color: #ffffff; }
+  .switch button.on.moon { background: #5b6a8f; border-color: #5b6a8f; color: #ffffff; }
   .row { display: flex; align-items: center; gap: 10px; padding: 8px 6px;
          border-radius: 6px; cursor: pointer; font-size: 14px; }
-  .row:hover { background: #161d30; }
-  .rank { width: 22px; color: #6b7590; }
+  .row:hover { background: var(--hover); }
+  .rank { width: 22px; color: var(--faint); }
   .nm { flex: 1; }
-  .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #23304d; color: #a9b8db; }
-  .tag.new { background: #3d2a12; color: #ffb066; }
+  .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--tag-bg); color: var(--tag-text); }
+  .tag.new { background: var(--new-bg); color: var(--new-text); }
   .sc { width: 42px; text-align: right; font-weight: 600; }
-  .legend { font-size: 12px; color: #9aa3b8; margin: 8px 0 14px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  body.light .sc { color: var(--text) !important; }
+  .legend { font-size: 12px; color: var(--muted); margin: 8px 0 14px; }
+  .legend-ends { display: flex; justify-content: space-between; }
   .bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg,#2b83ba,#ffffbf,#d7191c); margin: 4px 0; }
+  .panel { font-size: 12px; line-height: 1.6; background: var(--panel); border: 1px solid var(--border);
+         border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
+  .muted { color: var(--muted); }
+
+  /* Site cards (popups) stay white in both modes */
+  .card { color: #1b2333; }
   .card h3 { margin: 0 0 4px; font-size: 16px; }
   .card .big { font-size: 26px; font-weight: 700; margin: 6px 0; }
+  .card .tag { background: #e3e8f2; color: #2c3a5a; }
+  .card .tag.new { background: #fbe3d2; color: #8a3510; }
   .f { font-size: 12px; margin: 5px 0; }
   .fb { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
   .fb div { height: 100%; background: #c1440e; }
   .leaflet-popup-content { min-width: 230px; }
   .best { margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; font-size: 13px;
           font-weight: 700; color: #a3360b; line-height: 1.4; }
-  .scanhint { font-size: 12px; color: #ffb066; background: #2a1d10; border: 1px solid #5a3a1a; border-radius: 8px;
-         padding: 8px 10px; margin-bottom: 14px; line-height: 1.5; }
+  .scanhint { font-size: 12px; color: var(--hint-text); background: var(--hint-bg); border: 1px solid var(--hint-border);
+         border-radius: 8px; padding: 8px 10px; margin-bottom: 14px; line-height: 1.5; }
   .card select { font-size: 12px; padding: 2px 4px; margin-left: 4px; }
   .scanerr { font-size: 12px; color: #a3360b; }
-  #weights { background: #141a2a; border: 1px solid #2c3550; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
+
+  /* Mission sliders */
+  #weights { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
   #weights .wt { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-  #weights .wr { display: grid; grid-template-columns: 1fr 90px 34px; gap: 8px; align-items: center; font-size: 12px; color: #c4cbe0; margin: 4px 0; }
-  #weights input { width: 100%; accent-color: #c1440e; }
-  #weights button { margin-top: 8px; width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #2c3550;
-         background: #0b0f1a; color: #e8eaf0; cursor: pointer; font-size: 12px; }
+  #weights .wr { display: grid; grid-template-columns: 1fr 90px 34px; gap: 8px; align-items: center; font-size: 12px; color: var(--label); margin: 4px 0; }
+  #weights input { width: 100%; accent-color: var(--accent); }
+  #weights button { margin-top: 8px; width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border);
+         background: var(--bg); color: var(--text); cursor: pointer; font-size: 12px; }
