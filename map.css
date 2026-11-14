@@ -1,0 +1,40 @@
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+         background: #0b0f1a; color: #e8eaf0; display: flex; height: 100vh; }
+  #side { width: 360px; padding: 20px; overflow-y: auto; border-right: 1px solid #222a3d; }
+  #map { flex: 1; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #9aa3b8; font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
+  .switch { display: flex; gap: 6px; margin-bottom: 16px; }
+  .switch button { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2c3550;
+         background: #141a2a; color: #e8eaf0; cursor: pointer; font-size: 14px; }
+  .switch button.on { background: #c1440e; border-color: #c1440e; }
+  .switch button.on.moon { background: #5b6a8f; border-color: #5b6a8f; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 8px 6px;
+         border-radius: 6px; cursor: pointer; font-size: 14px; }
+  .row:hover { background: #161d30; }
+  .rank { width: 22px; color: #6b7590; }
+  .nm { flex: 1; }
+  .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #23304d; color: #a9b8db; }
+  .tag.new { background: #3d2a12; color: #ffb066; }
+  .sc { width: 42px; text-align: right; font-weight: 600; }
+  .legend { font-size: 12px; color: #9aa3b8; margin: 8px 0 14px; }
+  .bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg,#2b83ba,#ffffbf,#d7191c); margin: 4px 0; }
+  .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .card .big { font-size: 26px; font-weight: 700; margin: 6px 0; }
+  .f { font-size: 12px; margin: 5px 0; }
+  .fb { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
+  .fb div { height: 100%; background: #c1440e; }
+  .leaflet-popup-content { min-width: 230px; }
+  .best { margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; font-size: 13px;
+          font-weight: 700; color: #a3360b; line-height: 1.4; }
+  .scanhint { font-size: 12px; color: #ffb066; background: #2a1d10; border: 1px solid #5a3a1a; border-radius: 8px;
+         padding: 8px 10px; margin-bottom: 14px; line-height: 1.5; }
+  .card select { font-size: 12px; padding: 2px 4px; margin-left: 4px; }
+  .scanerr { font-size: 12px; color: #a3360b; }
+  #weights { background: #141a2a; border: 1px solid #2c3550; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
+  #weights .wt { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  #weights .wr { display: grid; grid-template-columns: 1fr 90px 34px; gap: 8px; align-items: center; font-size: 12px; color: #c4cbe0; margin: 4px 0; }
+  #weights input { width: 100%; accent-color: #c1440e; }
+  #weights button { margin-top: 8px; width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #2c3550;
+         background: #0b0f1a; color: #e8eaf0; cursor: pointer; font-size: 12px; }
