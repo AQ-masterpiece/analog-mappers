@@ -1,0 +1,22 @@
+name,lat,lon,terrain,known_analog
+Atacama Desert,-24.09,-69.93,desert,yes
+Haughton Crater,75.38,-89.68,crater,yes
+Death Valley,36.23,-116.77,desert,yes
+McMurdo Dry Valleys,-77.50,161.80,polar,yes
+Mauna Kea,19.82,-155.47,volcanic,yes
+Rio Tinto,37.70,-6.60,acidic,yes
+Utah MDRS,38.41,-110.79,desert,yes
+Craters of the Moon,43.42,-113.52,volcanic,yes
+Lanzarote Timanfaya,29.02,-13.75,volcanic,yes
+Harrat Khaybar,25.70,39.90,volcanic,no
+Harrat Rahat,23.50,39.90,volcanic,no
+Al Wahbah Crater,22.90,41.14,crater,no
+Rub al Khali,20.00,51.00,dunes,no
+Wadi Rum,29.58,35.42,desert,no
+Dasht-e Lut,30.50,59.00,desert,no
+Danakil Depression,14.24,40.30,acidic,no
+Lonar Crater,19.98,76.51,crater,no
+Namib Desert,-24.73,15.29,dunes,no
+Kharga Oasis,25.45,30.55,desert,no
+Tibesti Emi Koussi,19.79,18.55,volcanic,no
+Sakhir Desert Bahrain,26.03,50.52,desert,no
