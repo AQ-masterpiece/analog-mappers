@@ -17,6 +17,12 @@
   <div class="sub">The Analog Mappers - NASA Space Apps 2026.<br>
     Which places on Earth are most like the Moon or Mars? Scores use NASA POWER climate data
     + terrain type. Click a site to see why it matches.</div>
+  <div class="views">
+    <button id="vEarth" class="on" onclick="setView('earth')">🌍 Earth</button>
+    <button id="vMars" onclick="setView('mars')">🔴 Mars</button>
+    <button id="vMoon" onclick="setView('moon')">🌕 Moon</button>
+  </div>
+  <div class="label">Compare Earth with:</div>
   <div class="switch">
     <button id="bMars" class="on" onclick="setTarget('mars')">Mars</button>
     <button id="bMoon" class="moon" onclick="setTarget('moon')">Moon</button>
@@ -32,6 +38,7 @@
   <div id="list"></div>
 </div>
 <div id="map"></div>
+<div id="pmap" class="hidden"></div>
 <!-- map_data.js is created by analog_finder.py; map.js draws the map -->
 <script src="map_data.js"></script>
 <script src="map.js"></script>

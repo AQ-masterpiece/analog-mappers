@@ -129,6 +129,94 @@ function setTarget(t) {
   buildSliders();
   render();
 }
+// ---------- Planet view: real NASA maps of Mars and the Moon ----------
+// Map tiles: NASA Mars Trek (Viking color mosaic) and NASA Moon Trek (LRO WAC mosaic)
+const TREK = "https://trek.nasa.gov/tiles/";
+const PLANETS = {
+  mars: {
+    // Several NASA Mars maps: if one fails to load, the next one is tried automatically
+    tiles: [
+      { url: TREK + "Mars/EQ/Mars_Viking_MDIM21_ClrMosaic_global_232m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
+        credit: "Mars: NASA Viking color mosaic, NASA Mars Trek" },
+      { url: TREK + "Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
+        credit: "Mars: NASA MGS MOLA colorized elevation, NASA Mars Trek" },
+      { url: TREK + "Mars/EQ/Viking_MDIM21_ClrMosaic_global_232m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
+        credit: "Mars: NASA Viking color mosaic, NASA Mars Trek" },
+    ],
+    center: [18.44, 77.45],
+    spots: [{ name: "Jezero Crater", lat: 18.44, lon: 77.45,
+              about: "Where NASA's Perseverance rover landed: an ancient lake bed." }],
+  },
+  moon: {
+    tiles: [
+      { url: TREK + "Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
+        credit: "Moon: NASA LRO Wide Angle Camera mosaic, NASA Moon Trek" },
+    ],
+    center: [-30, 0],
+    spots: [
+      { name: "Lunar south pole", lat: -89.5, lon: 0,
+        about: "The Artemis base region, with water ice in permanently shadowed craters." },
+      { name: "Marius Hills pit (lava tube skylight)", lat: 14.09, lon: -56.78, terrain: "cave",
+        about: "A hole in the roof of a lunar lava tube, photographed by NASA's LRO. " +
+               "Its Earth twins are ranked among our Earth caves (terrain match, not climate)." },
+    ],
+  },
+};
+let view = "earth", pmap = null, pLayer = null;
+
+function twinsHTML(spot) {
+  let list = DATA.sites;
+  if (spot.terrain) list = list.filter(s => s.terrain === spot.terrain);
+  const top = [...list].sort((a, b) => score(b) - score(a)).slice(0, 5);
+  return top.map((s, i) => `<div class="twin"><span class="tn">${i + 1}. ${s.name}</span>
+    <b>${score(s)}</b><a href="#" onclick="goEarth('${s.name.replace(/'/g, "\\'")}'); return false;">Show on Earth</a></div>`).join("");
+}
+
+function spotCard(spot) {
+  const tf = DATA.facts[view];
+  return `<div class="card"><h3>${spot.name}</h3><div class="f">${spot.about}</div>
+    <div class="f">${spot.terrain ? "Image: NASA Lunar Reconnaissance Orbiter" : DATA.targets[view] + " · " + tf.source}</div>
+    <div class="best">Its Earth twins (${view === "mars" ? "Mars" : "Moon"} score):</div>${twinsHTML(spot)}</div>`;
+}
+
+function setView(v) {
+  view = v;
+  ["Earth", "Mars", "Moon"].forEach(n => document.getElementById("v" + n).classList.toggle("on", v === n.toLowerCase()));
+  document.getElementById("map").classList.toggle("hidden", v !== "earth");
+  document.getElementById("pmap").classList.toggle("hidden", v === "earth");
+  if (v === "earth") { map.invalidateSize(); return; }
+  if (target !== v) setTarget(v);
+  if (!pmap) pmap = L.map("pmap", { crs: L.CRS.EPSG4326, minZoom: 1, maxZoom: 7 });
+  if (pLayer) pmap.removeLayer(pLayer);
+  const P = PLANETS[v];
+  pLayer = L.layerGroup().addTo(pmap);
+  addPlanetTiles(P.tiles, 0);
+  P.spots.forEach(spot => L.circleMarker([spot.lat, spot.lon], { radius: 10, color: "#ffffff", weight: 3,
+    fillColor: "#d9622b", fillOpacity: 0.9 }).bindPopup(spotCard(spot)).addTo(pLayer));
+  pmap.invalidateSize();
+  pmap.setView(P.center, 2);
+}
+
+// Try the planet maps one by one: switch to the next if the first tiles all fail
+function addPlanetTiles(list, i) {
+  if (i >= list.length) return;
+  let loaded = false, errors = 0;
+  const t = L.tileLayer(list[i].url, { attribution: list[i].credit, noWrap: true,
+    bounds: [[-90, -180], [90, 180]], maxNativeZoom: 7 });
+  t.on("tileload", () => { loaded = true; });
+  t.on("tileerror", () => {
+    errors++;
+    if (!loaded && errors === 3 && pLayer.hasLayer(t)) { pLayer.removeLayer(t); addPlanetTiles(list, i + 1); }
+  });
+  pLayer.addLayer(t);
+  t.bringToBack();
+}
+
+function goEarth(name) {
+  setView("earth");
+  setTimeout(() => focusSite(name), 300);
+}
+
 // ---------- Scan any place on Earth (live NASA POWER request) ----------
 const POWER = "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M,T2M_RANGE,PRECTOTCORR,RH2M,ALLSKY_SFC_SW_DWN&community=RE&format=JSON";
 const clamp = x => Math.max(0, Math.min(1, x));

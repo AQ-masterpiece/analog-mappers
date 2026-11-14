@@ -18,7 +18,17 @@ body.light {
          background: var(--bg); color: var(--text); display: flex; height: 100vh;
          transition: background .3s, color .3s; }
   #side { width: 360px; padding: 20px; overflow-y: auto; border-right: 1px solid var(--line); }
-  #map { flex: 1; }
+  #map, #pmap { flex: 1; }
+  #pmap { background: #000000; }
+  .hidden { display: none !important; }
+  .views { display: flex; gap: 6px; margin-bottom: 12px; }
+  .views button { flex: 1; padding: 8px 6px; border-radius: 999px; border: 1px solid var(--border);
+         background: var(--panel); color: var(--text); cursor: pointer; font-size: 13px; }
+  .views button.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .twin { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 4px 0; border-top: 1px solid #eee; }
+  .twin .tn { flex: 1; }
+  .twin a { color: #a3360b; font-weight: 700; text-decoration: none; white-space: nowrap; }
   .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   h1 { font-size: 20px; margin: 0; }
   #themeBtn { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border);
