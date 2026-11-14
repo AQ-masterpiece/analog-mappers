@@ -89,6 +89,37 @@ FEATURE_NAMES = {
 }
 
 
+# What NASA could test at each kind of site (used for "Best for testing")
+TERRAIN_TESTS = {
+    "cave": "building a base inside a lava tube and cave-exploring robots",
+    "polar": "ice drilling and cold-proof equipment",
+    "volcanic": "driving rovers on rough basalt rock",
+    "crater": "landing and navigating inside craters",
+    "acidic": "searching for signs of life in harsh chemistry",
+    "desert": "long rover drives on dry, rocky ground",
+    "dunes": "rover wheels and mobility on loose sand",
+}
+FEATURE_TESTS = [
+    # (feature, minimum 0-1 score, test idea)
+    ("cold", 0.7, "ice drilling and cold-proof equipment"),
+    ("dryness", 0.9, "dust-proof rovers and solar panels"),
+    ("temp_swing", 0.8, "materials that survive hot days and cold nights"),
+    ("altitude", 0.6, "equipment in thin air and strong UV"),
+]
+
+
+def best_for_testing(terrain, fs):
+    tests = []
+    if terrain in TERRAIN_TESTS:
+        tests.append(TERRAIN_TESTS[terrain])
+    for feature, minimum, idea in FEATURE_TESTS:
+        if fs[feature] >= minimum and idea not in tests:
+            tests.append(idea)
+    if not tests:
+        tests.append("general astronaut field training")
+    return tests[:3]
+
+
 def clamp(x):
     return max(0.0, min(1.0, x))
 
@@ -179,6 +210,7 @@ def main():
             fs = feature_scores(climate, row["terrain"], t)
             row[f"{t}_features"] = {k: round(v, 4) for k, v in fs.items()}
             row[f"{t}_score"] = total_score(fs, t)
+        row["tests"] = best_for_testing(row["terrain"], row["mars_features"])
         results.append(row)
         print(f"  [{i}/{len(sites)}] {s['name']:<24} Mars {row['mars_score']:>5}   "
               f"Moon {row['moon_score']:>5}")
@@ -192,14 +224,15 @@ def main():
         w = csv.writer(f)
         w.writerow(["name", "lat", "lon", "terrain", "known_analog", "mars_score",
                     "moon_score", "temp_C", "temp_swing_C", "rain_mm_day",
-                    "humidity_pct", "sunlight_kWh", "elevation_m"])
+                    "humidity_pct", "sunlight_kWh", "elevation_m", "best_for_testing"])
         for r in sorted(results, key=lambda r: -r["mars_score"]):
             c = r["climate"]
             w.writerow([r["name"], r["lat"], r["lon"], r["terrain"],
                         "yes" if r["known_analog"] else "no", r["mars_score"],
                         r["moon_score"], c.get("T2M"), c.get("T2M_RANGE"),
                         c.get("PRECTOTCORR"), c.get("RH2M"),
-                        c.get("ALLSKY_SFC_SW_DWN"), c.get("ELEVATION")])
+                        c.get("ALLSKY_SFC_SW_DWN"), c.get("ELEVATION"),
+                        "; ".join(r["tests"])])
 
     # Validation: do known analogs score higher than average?
     print("\n=== VALIDATION ===")
@@ -272,6 +305,8 @@ MAP_TEMPLATE = r"""<!DOCTYPE html>
   .fb { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
   .fb div { height: 100%; background: #c1440e; }
   .leaflet-popup-content { min-width: 230px; }
+  .best { margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; font-size: 13px;
+          font-weight: 700; color: #a3360b; line-height: 1.4; }
   #weights { background: #141a2a; border: 1px solid #2c3550; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
   #weights .wt { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
   #weights .wr { display: grid; grid-template-columns: 1fr 90px 34px; gap: 8px; align-items: center; font-size: 12px; color: #c4cbe0; margin: 4px 0; }
@@ -370,7 +405,8 @@ function card(s) {
     <tr><td style="${td}">Air pressure (kPa)</td><td style="${td}">${fmt(pressure)}</td><td style="${td}">${tf.pressure_kPa}</td></tr>
   </table>
   <div class="f" style="color:#666">Humidity ${fmt(c.RH2M, 0)}%, elevation ${fmt(c.ELEVATION, 0)} m.
-    Earth data: NASA POWER. ${target === "mars" ? "Mars" : "Moon"} data: ${tf.source}.</div></div>`;
+    Earth data: NASA POWER. ${target === "mars" ? "Mars" : "Moon"} data: ${tf.source}.</div>
+  <div class="best">Best for testing: ${s.tests.join(" · ")}</div></div>`;
   return h;
 }
 
